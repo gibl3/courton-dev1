@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="flex">
-                    <a href="{{ route('reservation') }}" class="btn-filled pl-6 pr-[16px]">
+                    <a href="" class="btn-filled pl-6 pr-[16px]">
                         Book now
                         <span class="material-symbols-rounded md-icon-24">
                             chevron_right
