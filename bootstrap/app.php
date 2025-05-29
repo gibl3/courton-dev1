@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\PlayerMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            // 'is_admin' => AdminMiddleware::class,
+            'is_admin' => AdminMiddleware::class,
             'is_player' => PlayerMiddleware::class,
             // 'verify.otp' => VerifyOTP::class,
             // 'role' => CheckRole::class,
