@@ -25,7 +25,7 @@ class MyBookingsController extends Controller
             ->orderBy('start_time', 'desc')
             ->paginate(10);
 
-        return view('players.my-bookings', compact('bookings'));
+        return view('players.bookings.index', compact('bookings'));
     }
 
     /**
@@ -38,6 +38,6 @@ class MyBookingsController extends Controller
     {
         $this->authorize('view', $booking);
 
-        return view('players.booking-details', compact('booking'));
+        return view('players.bookings.show', compact('booking'));
     }
 }
