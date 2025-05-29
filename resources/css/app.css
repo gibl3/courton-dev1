@@ -2,11 +2,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded");
 @import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
 @theme {
     --font-sans: "Poppins";
 }
@@ -23,16 +18,20 @@
 .md-icon-48 {
     font-size: 48px;
 }
+.md-icon-2xl {
+    font-size: 200px;
+}
 
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="password"] {
-    @apply bg-zinc-50 border border-gray-400/80 rounded-full w-full py-2.5 px-4 text-sm;
+.qr-scan-icon {
+    @apply text-[156px];
+}
+
+@utility input-base {
+    @apply bg-neutral-50 border border-neutral-300 rounded-lg w-full py-2.5 pl-4 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border-neutral-200 disabled:cursor-not-allowed disabled:opacity-100;
 }
 
 @utility btn-base {
-    @apply flex items-center justify-center gap-x-2 py-2.5 px-6 text-sm size-fit md:text-base text-center font-medium leading-normal rounded-full transition-all duration-150 ease-in-out border-none cursor-pointer disabled:pointer-events-none;
+    @apply flex items-center justify-center gap-x-2 py-2.5 px-6 text-sm size-fit text-center font-medium leading-normal rounded-full transition-all duration-150 ease-in-out border-none cursor-pointer disabled:pointer-events-none whitespace-nowrap;
 }
 
 @utility btn-filled {
@@ -40,11 +39,19 @@ input[type="password"] {
 }
 
 @utility btn-filled-tonal {
-    @apply btn-base bg-rose-200/50 text-rose-900/70 hover:bg-rose-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-rose-200/50 text-rose-900/70 hover:bg-rose-200/90 hover:text-rose-600/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+}
+
+@utility btn-filled-warning {
+    @apply btn-base bg-red-500 text-white hover:bg-red-600/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-filled-tonal-warning {
-    @apply btn-base bg-red-200/50 text-red-900/50 hover:bg-red-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-red-200/50 text-red-700/70 hover:bg-red-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+}
+
+@utility btn-filled-tonal-success {
+    @apply btn-base bg-green-200/50 text-green-900/50 hover:bg-green-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-outline {
@@ -52,9 +59,13 @@ input[type="password"] {
 }
 
 @utility btn-text {
-    @apply btn-base bg-transparent text-rose-900/70 hover:bg-rose-200/90 hover:shadow-md hover:text-rose-900/70 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-transparent text-rose-700/70 hover:bg-rose-200/50 hover:shadow-md hover:text-rose-600/90 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+}
+
+@utility btn-text-success {
+    @apply btn-base bg-transparent text-green-700/70 hover:bg-green-200/50 hover:shadow-md hover:text-green-600/90 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-link {
-    @apply btn-base p-0 bg-transparent text-neutral-700 hover:bg-none hover:text-neutral-900 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base p-0 bg-transparent text-rose-600 hover:text-rose-500 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
