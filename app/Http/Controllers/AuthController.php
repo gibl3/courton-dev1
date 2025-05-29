@@ -54,6 +54,10 @@ class AuthController extends Controller
         return view('auth.forgotPass');
     }
 
+    public function adminLogin() {
+        return view('auth.admin-login');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
