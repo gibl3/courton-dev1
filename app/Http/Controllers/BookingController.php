@@ -26,7 +26,7 @@ class BookingController extends Controller
                 return $court;
             });
 
-        return view('players.court-bookings.index', compact('courts'));
+        return view('players.book', compact('courts'));
     }
 
     public function confirm(Request $request)
