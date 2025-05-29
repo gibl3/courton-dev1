@@ -4,3 +4,61 @@
    ██║   ██║   ██║██║  ██║██║   ██║██╗
    ██║   ╚██████╔╝██████╔╝╚██████╔╝╚═╝
    ╚═╝    ╚═════╝ ╚═════╝  ╚═════╝    
+✅❌⌛
+
+   Player Account
+   - can create account ✅
+   - can login to the account ✅
+   - can reset password
+   - can receive OTP through email for first log in
+   - can verify OTP
+   - can route to user dashboard
+
+   Player Dashboard
+   - can view the name of the logged in player
+   - can view active (confirmed) bookings
+   - can view total bookings (all status except for cancelled)
+   - can view total hours played for confirmed bookings duration
+   - can view featured courts (professional type)
+   - can view upcoming bookings (confirmed bookings)
+   - can route to the court booking page
+   - can route to the court booking page with focus on the search bar
+   - can logout
+   - can route to bookings page
+   - can route to profile page
+
+   Player Court Booking (Book a Court)
+   - can select court to book
+   - can select date to book a court
+   - can select weekdays time slot to book a court
+   - can select whole day time slot to book a court
+   - can view court booking summary
+   - can confirm booking
+   - can search court
+   - can filter court types
+   - can filter court prices
+
+   Player Booking History (My Bookings)
+   - can view bookings
+   - can filter (all, upcoming, pending, past, and cancelled)
+   - can view booking
+   - can cancel booking 24 hours before the booked date
+
+   Player Profile Management (Profile)
+   - can view Player profile
+   - can update first name, last name, and phone number
+   - can update password
+   - can view account summary
+   - can delete account
+
+   Court Management
+   - Add/Update/Delete courts
+   - Court details: id, name, slug, availability hours, rate per hour, status, image path
+
+   Reservation System (Core Module)
+   - Browse available time slots
+   - Book a court (date, time, duration)
+   - Add additional booking details (rent referee)
+   - Prevent double booking
+   - Confirmation and cancellation of reservations
+   - Track past and upcoming reservations
