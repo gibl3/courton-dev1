@@ -14,7 +14,12 @@
     <title>@yield('title', 'Admin Dashboard - Courton')</title>
 </head>
 
-<body class="flex flex-col h-screen bg-neutral-50 text-neutral-900 font-normal">
+<body class="flex flex-col h-screen bg-neutral-50 text-neutral-900 font-normal" x-data="{ 
+    user: {
+        name: '{{ Auth::check() ? (Auth::user()->first_name ?? Auth::user()->name ?? 'Admin') : 'Guest' }}',
+        isAdmin: {{ Auth::check() && Auth::user()->role === 'admin' ? 'true' : 'false' }}
+    }
+}">
     <!-- Top Header -->
     <header class="h-16 border-b border-neutral-200 bg-white">
         <div class="h-full px-8 flex items-center justify-between">
@@ -24,20 +29,38 @@
             </div>
 
             <div class="flex items-center gap-x-2.5">
-                <div class="relative group">
-                    <button class="btn-filled-tonal flex items-center gap-x-1">
+                <div class="relative" x-data="{ isOpen: false }" @click.away="isOpen = false">
+                    <button @click="isOpen = !isOpen" class="btn-filled-tonal flex items-center gap-x-1">
                         <span class="material-symbols-rounded">
                             admin_panel_settings
                         </span>
-                        {{ auth()->user()->name }}
+                        <span x-text="user.name"></span>
+                        <span class="material-symbols-rounded text-lg transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
                     </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 hidden group-hover:block">
+                    <div x-show="isOpen" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50">
                         <div class="py-1">
-                            <a href="" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">Profile Settings</a>
-                            <a href="" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">System Settings</a>
+                            <a href="{{ route('admin.settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
+                                <span class="material-symbols-rounded text-lg">person</span>
+                                Profile Settings
+                            </a>
+                            <a href="{{ route('admin.settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
+                                <span class="material-symbols-rounded text-lg">settings</span>
+                                System Settings
+                            </a>
                             <form method="POST" action="{{ route('auth.logout') }}" class="block">
                                 @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100">Sign out</button>
+                                @method('post')
+                                <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-neutral-100">
+                                    <span class="material-symbols-rounded text-lg">logout</span>
+                                    Sign out
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -107,11 +130,11 @@
                         <span class="material-symbols-rounded text-lg transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
                     </button>
                     <div x-show="isOpen" x-cloak @click.away="close" class="mt-1 ml-4 space-y-1">
-                        <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.users') ? 'bg-rose-50 text-rose-600' : '' }}">
+                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.users.index') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">list</span>
                             <span>All Users</span>
                         </a>
-                        <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.users.create') ? 'bg-rose-50 text-rose-600' : '' }}">
+                        <a href="{{ route('admin.users.create') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.users.create') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">person_add</span>
                             <span>Add User</span>
                         </a>
