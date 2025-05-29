@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminBookingController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminCourtController;
+use App\Http\Controllers\AdminUsersController;
 use App\Http\Controllers\MyBookingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -20,8 +24,10 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 // ██║  ██║╚██████╔╝   ██║   ██║  ██║
 // ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝
 Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::get('/login/player', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
+
+    Route::get('/login/admin', [AuthController::class, 'adminLogin'])->name('admin.login');
 
     Route::get('/signup', [AuthController::class, 'create'])->name('create');
     Route::post('/signup', [UserController::class, 'store'])->name('store');
@@ -48,3 +54,22 @@ Route::prefix('courts')->name('courts.')->group(function () {
     Route::get('/create', [CourtController::class, 'create'])->name('create');
     Route::get('/store', [CourtController::class, 'store'])->name('store');
 });
+
+
+//Admin Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('index');
+
+    Route::get('/courts', [AdminCourtController::class, 'index'])->name('courts.index');
+    Route::get('/courts/create', [AdminCourtController::class, 'create'])->name('courts.create');
+
+    Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings');
+
+    Route::get('/users', [AdminUsersController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [AdminUsersController::class, 'create'])->name('users.create');
+
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+});
+
+// Admin Creation Route (temporary, remove after creating admin)
+Route::get('/create-admin', [AdminController::class, 'storeAdmin'])->name('create.admin');
