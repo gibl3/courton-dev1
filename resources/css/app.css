@@ -39,7 +39,7 @@
 }
 
 @utility btn-filled-tonal {
-    @apply btn-base bg-rose-200/50 text-rose-900/70 hover:bg-rose-200/90 hover:text-rose-600/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-rose-200/60 text-rose-600/80 hover:bg-rose-200/90 hover:text-rose-600/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-filled-warning {
