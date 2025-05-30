@@ -11,14 +11,10 @@
             <p class="text-sm text-neutral-600">Welcome back, {{ Auth::user()->first_name ?? 'Admin' }}!</p>
         </div>
         <div class="flex items-center gap-3">
-            <button class="btn-filled flex items-center gap-2">
+            <a href="{{ route('admin.bookings.create') }}" class="btn-filled">
                 <span class="material-symbols-rounded">add</span>
                 New Booking
-            </button>
-            <button class="btn-filled-tonal flex items-center gap-2">
-                <span class="material-symbols-rounded">calendar_month</span>
-                View Calendar
-            </button>
+            </a>
         </div>
     </div>
 
@@ -139,14 +135,14 @@
                             <span class="material-symbols-rounded text-rose-500 mb-2">person_add</span>
                             <span class="text-sm font-medium">Add User</span>
                         </a>
-                        <a href="{{ route('admin.users.index') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-neutral-50 hover:bg-neutral-100 transition-colors">
+                        <!-- <a href="{{ route('admin.users.index') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-neutral-50 hover:bg-neutral-100 transition-colors">
                             <span class="material-symbols-rounded text-rose-500 mb-2">receipt_long</span>
                             <span class="text-sm font-medium">Reports</span>
                         </a>
                         <a href="{{ route('admin.settings') }}" class="flex flex-col items-center justify-center p-4 rounded-lg bg-neutral-50 hover:bg-neutral-100 transition-colors">
                             <span class="material-symbols-rounded text-rose-500 mb-2">settings</span>
                             <span class="text-sm font-medium">Settings</span>
-                        </a>
+                        </a> -->
                     </div>
                 </div>
             </div>
