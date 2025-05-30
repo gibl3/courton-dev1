@@ -11,10 +11,10 @@
             <p class="text-sm text-neutral-600">Manage and monitor all badminton courts</p>
         </div>
         <div class="flex items-center gap-3">
-            <button class="btn-filled flex items-center gap-2">
+            <a href="{{ route('admin.courts.create') }}" class="btn-filled">
                 <span class="material-symbols-rounded">add</span>
                 Add New Court
-            </button>
+            </a>
         </div>
     </div>
 
