@@ -161,20 +161,14 @@
                     <tr class="hover:bg-neutral-50">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
-                                    <span class="material-symbols-rounded text-neutral-600">person</span>
-                                </div>
                                 <div>
-                                    <div class="font-medium">{{ $booking->user->name }}</div>
+                                    <div class="font-medium">{{ $booking->user->getFullNameAttribute() }}</div>
                                     <div class="text-sm text-neutral-600">{{ $booking->user->email }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
-                                    <span class="material-symbols-rounded text-neutral-600">sports_tennis</span>
-                                </div>
+                            <div class="flex items-center">
                                 <div>
                                     <div class="font-medium">{{ $booking->court->name }}</div>
                                     <div class="text-sm text-neutral-600">{{ ucfirst($booking->court->type) }}</div>
