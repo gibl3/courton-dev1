@@ -25,7 +25,7 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 // ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login/player', [AuthController::class, 'login'])->name('login');
-    Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
+    Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:login')->name('authenticate');
 
     Route::get('/login/admin', [AuthController::class, 'adminLogin'])->name('admin.login');
 
@@ -36,7 +36,12 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-// Player Routes
+// ██████╗ ██╗      █████╗ ██╗   ██╗███████╗██████╗ 
+// ██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
+// ██████╔╝██║     ███████║ ╚████╔╝ █████╗  ██████╔╝
+// ██╔═══╝ ██║     ██╔══██║  ╚██╔╝  ██╔══╝  ██╔══██╗
+// ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
+// ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 Route::prefix('player')->name('player.')->middleware('is_player')->group(function () {
     Route::get('/dashboard', [PlayerController::class, 'index'])->name('dashboard');
     Route::get('/book', [BookingController::class, 'index'])->name('book');
@@ -48,7 +53,12 @@ Route::prefix('player')->name('player.')->middleware('is_player')->group(functio
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
-// Court Routes
+//  ██████╗ ██████╗ ██╗   ██╗██████╗ ████████╗
+// ██╔════╝██╔═══██╗██║   ██║██╔══██╗╚══██╔══╝
+// ██║     ██║   ██║██║   ██║██████╔╝   ██║   
+// ██║     ██║   ██║██║   ██║██╔══██╗   ██║   
+// ╚██████╗╚██████╔╝╚██████╔╝██║  ██║   ██║   
+//  ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
 Route::prefix('courts')->name('courts.')->group(function () {
     Route::get('/', [CourtController::class, 'index'])->name('index');
     Route::get('/create', [CourtController::class, 'create'])->name('create');
@@ -56,20 +66,28 @@ Route::prefix('courts')->name('courts.')->group(function () {
 });
 
 
-//Admin Routes
+//  █████╗ ██████╗ ███╗   ███╗██╗███╗   ██╗
+// ██╔══██╗██╔══██╗████╗ ████║██║████╗  ██║
+// ███████║██║  ██║██╔████╔██║██║██╔██╗ ██║
+// ██╔══██║██║  ██║██║╚██╔╝██║██║██║╚██╗██║
+// ██║  ██║██████╔╝██║ ╚═╝ ██║██║██║ ╚████║
+// ╚═╝  ╚═╝╚═════╝ ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('index');
 
+    // Courts
     Route::get('/courts', [AdminCourtController::class, 'index'])->name('courts.index');
     Route::get('/courts/create', [AdminCourtController::class, 'create'])->name('courts.create');
+    Route::post('/courts', [AdminCourtController::class, 'store'])->name('courts.store');
 
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings');
+    Route::get('/bookings/pending', [AdminBookingController::class, 'pending'])->name('bookings.pending');
+    Route::get('/bookings/pending-payments', [AdminBookingController::class, 'pendingPayments'])->name('bookings.pendingPayments');
+    Route::put('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+    Route::put('/bookings/{booking}/payment-status', [AdminBookingController::class, 'updatePaymentStatus'])->name('bookings.updatePaymentStatus');
 
     Route::get('/users', [AdminUsersController::class, 'index'])->name('users.index');
     Route::get('/users/create', [AdminUsersController::class, 'create'])->name('users.create');
 
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
 });
-
-// Admin Creation Route (temporary, remove after creating admin)
-Route::get('/create-admin', [AdminController::class, 'storeAdmin'])->name('create.admin');
