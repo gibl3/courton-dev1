@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded");
+
 @import "tailwindcss";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
 
 @theme {
     --font-sans: "Poppins";
@@ -39,7 +45,7 @@
 }
 
 @utility btn-filled-tonal {
-    @apply btn-base bg-rose-200/60 text-rose-600/80 hover:bg-rose-200/90 hover:text-rose-600/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-rose-100 text-rose-700 hover:bg-rose-200 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-filled-warning {
@@ -47,25 +53,25 @@
 }
 
 @utility btn-filled-tonal-warning {
-    @apply btn-base bg-red-200/50 text-red-700/70 hover:bg-red-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-red-100 text-red-700 hover:bg-red-200 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-filled-tonal-success {
-    @apply btn-base bg-green-200/50 text-green-900/50 hover:bg-green-200/90 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-green-100 text-green-700 hover:bg-green-200 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-outline {
-    @apply btn-base bg-transparent text-rose-500 outline outline-neutral-500 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-transparent text-rose-700 border border-rose-700 hover:bg-rose-50 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:border-neutral-300 disabled:hover:shadow-none;
 }
 
 @utility btn-text {
-    @apply btn-base bg-transparent text-rose-700/70 hover:bg-rose-200/50 hover:shadow-md hover:text-rose-600/90 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-transparent text-rose-700 hover:bg-rose-50 hover:shadow-sm disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-text-success {
-    @apply btn-base bg-transparent text-green-700/70 hover:bg-green-200/50 hover:shadow-md hover:text-green-600/90 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-transparent text-green-700 hover:bg-green-50 hover:shadow-sm disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-link {
-    @apply btn-base p-0 bg-transparent text-rose-600 hover:text-rose-500 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base p-0 bg-transparent text-rose-700 hover:text-rose-600 disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
