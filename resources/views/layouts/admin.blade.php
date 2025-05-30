@@ -37,14 +37,14 @@
                         <span x-text="user.name"></span>
                         <span class="material-symbols-rounded text-lg transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
                     </button>
-                    <div x-show="isOpen" 
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="transform opacity-0 scale-95"
-                         x-transition:enter-end="transform opacity-100 scale-100"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="transform opacity-100 scale-100"
-                         x-transition:leave-end="transform opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50">
+                    <div x-show="isOpen"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50">
                         <div class="py-1">
                             <a href="{{ route('admin.settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
                                 <span class="material-symbols-rounded text-lg">person</span>
@@ -113,9 +113,13 @@
                             <span class="material-symbols-rounded text-lg">list</span>
                             <span>All Bookings</span>
                         </a>
-                        <a href="{{ route('admin.bookings') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.pending') ? 'bg-rose-50 text-rose-600' : '' }}">
+                        <a href="{{ route('admin.bookings.pending') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.pending') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">pending</span>
                             <span>Pending</span>
+                        </a>
+                        <a href="{{ route('admin.bookings.pendingPayments') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.pendingPayments') ? 'bg-rose-50 text-rose-600' : '' }}">
+                            <span class="material-symbols-rounded text-lg">payments</span>
+                            <span>Pending Payments</span>
                         </a>
                     </div>
                 </div>
