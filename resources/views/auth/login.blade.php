@@ -38,8 +38,12 @@
                             </div>
                             <div class="relative">
                                 <input type="password" name="password" id="password"
-                                    class="input-base"
+                                    class="input-base pr-12"
                                     placeholder="Enter your password" />
+                                <button type="button" id="toggle-password"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-0 bg-transparent border-0">
+                                    <span class="material-symbols-rounded text-neutral-500">visibility</span>
+                                </button>
                             </div>
                         </div>
 
