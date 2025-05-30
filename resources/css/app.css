@@ -55,7 +55,7 @@
 }
 
 @utility btn-outline {
-    @apply btn-base pl-4 pr-6 bg-transparent text-rose-500 outline outline-neutral-500 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
+    @apply btn-base bg-transparent text-rose-500 outline outline-neutral-500 hover:shadow-md disabled:bg-neutral-500/10 disabled:text-neutral-900/30 disabled:hover:shadow-none;
 }
 
 @utility btn-text {
