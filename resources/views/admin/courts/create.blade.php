@@ -10,14 +10,14 @@
             <h1 class="text-2xl font-bold">Create New Court</h1>
             <p class="text-sm text-neutral-600">Add a new badminton court to the system</p>
         </div>
-        <a href="" class="btn-outline flex items-center gap-2">
+        <a href="{{ route('admin.courts.index') }}" class="btn-outline flex items-center gap-2">
             <span class="material-symbols-rounded">arrow_back</span>
             Back to Courts
         </a>
     </div>
 
     <!-- Form Section -->
-    <form action="" method="POST" class="bg-white rounded-xl border border-neutral-200 p-6">
+    <form action="{{ route('admin.courts.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-xl border border-neutral-200 p-6">
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -32,6 +32,16 @@
                             class="w-full px-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 @error('name') border-red-500 @enderror"
                             placeholder="Enter court name">
                         @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Court Image -->
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-neutral-700 mb-1">Court Image</label>
+                        <input type="file" name="image" id="image" accept="image/*"
+                            class="w-full px-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 @error('image') border-red-500 @enderror">
+                        @error('image')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
