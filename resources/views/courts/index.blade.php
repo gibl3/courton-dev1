@@ -14,7 +14,21 @@
         @foreach($courts as $court)
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow">
             <div class="relative h-64">
-                <img src="{{ $court->image_path }}" alt="{{ $court->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                @if($court->image_path)
+                <x-cloudinary::image
+                    public-id="{{ $court->image_path }}"
+                    alt="{{ $court->name }}"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    width="800"
+                    height="600"
+                    crop="fill"
+                    fetch-format="auto"
+                    quality="auto" />
+                @else
+                <div class="w-full h-full bg-neutral-200 flex items-center justify-center">
+                    <span class="material-symbols-rounded text-4xl text-neutral-400">image</span>
+                </div>
+                @endif
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div class="absolute bottom-4 left-4 text-white">
                     <h3 class="text-xl font-semibold">{{ $court->name }}</h3>
@@ -37,7 +51,7 @@
                     </div>
                 </div>
                 <p class="text-neutral-600">{{ $court->description }}</p>
-                <a href="{{ route('player.book') }}" class="btn-filled w-full justify-center">Book Now</a>
+                <a href="{{ route('player.bookings.index') }}" class="btn-filled w-full justify-center">Book Now</a>
             </div>
         </div>
         @endforeach

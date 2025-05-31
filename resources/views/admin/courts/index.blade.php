@@ -96,13 +96,13 @@
 
     <!-- Filters Section -->
     <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex flex-col md:flex-row gap-4">
+        <form action="{{ route('admin.courts.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
             <!-- Search -->
             <div class="flex-1">
                 <div class="relative">
                     <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">search</span>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search courts..."
-                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                        class="input-base pl-10">
                 </div>
             </div>
 
@@ -125,7 +125,15 @@
                     <option value="maintenance" {{ request('status') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                 </select>
             </div>
-        </div>
+
+            <!-- Search Button -->
+            <div class="w-full md:w-auto">
+                <button type="submit" class="btn-filled-tonal">
+                    <span class="material-symbols-rounded">search</span>
+                    Search
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Courts Table -->
@@ -148,9 +156,23 @@
                     <tr class="hover:bg-neutral-50">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
+                                @if($court->image_path)
+                                <div class="w-10 h-10 rounded-lg overflow-hidden">
+                                    <x-cloudinary::image
+                                        public-id="{{ $court->image_path }}"
+                                        alt="{{ $court->name }}"
+                                        class="w-full h-full object-cover"
+                                        width="40"
+                                        height="40"
+                                        crop="fill"
+                                        fetch-format="auto"
+                                        quality="auto" />
+                                </div>
+                                @else
                                 <div class="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
                                     <span class="material-symbols-rounded text-neutral-600">sports_tennis</span>
                                 </div>
+                                @endif
                                 <div>
                                     <div class="font-medium">{{ $court->name }}</div>
                                     <div class="text-sm text-neutral-600">{{ Str::limit($court->description, 30) }}</div>
@@ -185,12 +207,16 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                <a href="{{ route('admin.courts.edit', $court) }}" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                     <span class="material-symbols-rounded">edit</span>
-                                </button>
-                                <button class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                                    <span class="material-symbols-rounded">delete</span>
-                                </button>
+                                </a>
+                                <form action="{{ route('admin.courts.destroy', $court) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete {{ $court->name }}? This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                        <span class="material-symbols-rounded">delete</span>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
