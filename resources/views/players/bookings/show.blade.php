@@ -105,7 +105,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-4 pt-6">
-                    <a href="{{ route('player.myBookings') }}" class="btn-filled-tonal flex-1">
+                    <a href="{{ route('player.bookings.my') }}" class="btn-filled-tonal flex-1">
                         <span class="material-symbols-rounded">arrow_back</span>
                         Back to Bookings
                     </a>

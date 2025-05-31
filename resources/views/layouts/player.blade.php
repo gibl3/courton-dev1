@@ -26,18 +26,23 @@
         <nav class="flex-1 flex justify-center">
             <ul class="flex flex-row gap-x-6">
                 <li><a href="{{ route('player.dashboard') }}" class="btn-base hover:text-neutral-900/70">Dashboard</a></li>
-                <li><a href="{{ route('player.book') }}" class="btn-base hover:text-neutral-900/70">Book a Court</a></li>
-                <li><a href="{{ route('player.myBookings') }}" class="btn-base hover:text-neutral-900/70">My Bookings</a></li>
+                <li><a href="{{ route('player.bookings.index') }}" class="btn-base hover:text-neutral-900/70">Book a Court</a></li>
+                <li><a href="{{ route('player.bookings.my') }}" class="btn-base hover:text-neutral-900/70">My Bookings</a></li>
             </ul>
         </nav>
 
         <div class="flex-1 flex justify-end gap-x-2.5">
             <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="btn-filled-tonal flex items-center gap-x-1">
-                    <span class="material-symbols-rounded">
-                        account_circle
-                    </span>
-                    Player
+                <button @click="open = !open" class="btn-base p-1">
+                    <img
+                        src="{{ Auth::user()->avatar }}"
+                        alt="{{ Auth::user()->full_name }}"
+                        class="w-8 h-8 rounded-full object-cover border border-neutral-200"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        crossorigin="anonymous">
+                    {{ auth()->user()->first_name }}
+                    <span class="material-symbols-rounded transition-transform" :class="{ 'rotate-180': open }">expand_more</span>
                 </button>
                 <div x-show="open"
                     x-cloak
@@ -49,8 +54,8 @@
                     x-transition:leave-end="opacity-0 scale-95"
                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50">
                     <div class="py-1">
-                        <a href="{{ route('player.profile') }}" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">Profile Settings</a>
-                        <a href="{{ route('player.myBookings') }}" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">My Bookings</a>
+                        <a href="{{ route('player.profile.index') }}" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">Profile Settings</a>
+                        <a href="{{ route('player.bookings.my') }}" class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">My Bookings</a>
                         <form method="POST" action="{{ route('auth.logout') }}" class="block">
                             @csrf
                             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100">Sign out</button>

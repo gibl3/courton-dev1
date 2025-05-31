@@ -134,13 +134,19 @@
                     @foreach($courts as $court)
                     <div class="bg-white rounded-xl border border-neutral-200 overflow-hidden group hover:shadow-lg transition-all" data-court-id="{{ $court->id }}">
                         <div class="relative h-48">
-                            <img src="{{ $court->image_path }}" alt="{{ $court->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <x-cloudinary::image
+                                public-id="{{ $court->image_path }}"
+                                alt="{{ $court->name }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                fetch-format="auto"
+                                quality="auto" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                             <div class="absolute bottom-4 left-4 text-white">
                                 <h3 class="text-sm font-semibold">{{ $court->name }}</h3>
                                 <p class="text-sm text-neutral-200">{{ ucfirst($court->type) }} Court</p>
                             </div>
                         </div>
+                        
                         <div class="p-6 space-y-6">
                             <!-- Price and Capacity -->
                             <div class="flex items-center justify-between">

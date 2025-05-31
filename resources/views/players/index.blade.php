@@ -19,13 +19,13 @@
             </div>
 
             <div class="flex gap-4">
-                <a href="{{ route('player.book') }}" class="btn-filled pl-6 pr-[16px]">
+                <a href="{{ route('player.bookings.index') }}" class="btn-filled pl-6 pr-[16px]">
                     Book a Court
                     <span class="material-symbols-rounded md-icon-24">
                         chevron_right
                     </span>
                 </a>
-                <a href="{{ route('player.book') }}?focus=search" class="btn-filled-tonal pl-6 pr-[16px]">
+                <a href="{{ route('player.bookings.index') }}?focus=search" class="btn-filled-tonal pl-6 pr-[16px]">
                     View Available Courts
                     <span class="material-symbols-rounded md-icon-24">
                         search
@@ -36,13 +36,17 @@
     </section>
 
     <!-- Welcome Section -->
-    <section class="bg-white rounded-2xl shadow-lg p-8">
+    <section class="bg-white rounded-xl border border-neutral-200 p-8">
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-4">
                 <div class="size-16 rounded-full bg-rose-100 flex items-center justify-center">
-                    <span class="material-symbols-rounded text-3xl text-rose-600">
-                        account_circle
-                    </span>
+                    <img
+                        src="{{ Auth::user()->avatar }}"
+                        alt="{{ Auth::user()->full_name }}"
+                        class="size-full rounded-full object-cover border border-neutral-200"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        crossorigin="anonymous">
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold">Welcome back, {{ Auth::user()->getFullNameAttribute()}}!</h1>
@@ -55,7 +59,7 @@
     <!-- Quick Stats -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Active Bookings -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div class="bg-white rounded-xl border border-neutral-200 p-6 hover:bg-neutral-50 transition-colors">
             <div class="flex items-center gap-4">
                 <div class="size-12 rounded-xl bg-rose-100 flex items-center justify-center">
                     <span class="material-symbols-rounded text-2xl text-rose-600">
@@ -70,7 +74,7 @@
         </div>
 
         <!-- Total Bookings -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div class="bg-white rounded-xl border border-neutral-200 p-6 hover:bg-neutral-50 transition-colors">
             <div class="flex items-center gap-4">
                 <div class="size-12 rounded-xl bg-rose-100 flex items-center justify-center">
                     <span class="material-symbols-rounded text-2xl text-rose-600">
@@ -85,7 +89,7 @@
         </div>
 
         <!-- Hours Played -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div class="bg-white rounded-xl border border-neutral-200 p-6 hover:bg-neutral-50 transition-colors">
             <div class="flex items-center gap-4">
                 <div class="size-12 rounded-xl bg-rose-100 flex items-center justify-center">
                     <span class="material-symbols-rounded text-2xl text-rose-600">
@@ -101,18 +105,27 @@
     </section>
 
     <!-- Featured Courts -->
-    <section class="bg-white rounded-2xl shadow-lg p-8">
+    <section class="bg-white rounded-xl border border-neutral-200 p-8">
         <div class="flex flex-col gap-6">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold">Featured Courts</h2>
-                <a href="{{ route('player.book') }}" class="btn-filled-tonal text-sm">View All Courts</a>
+                <a href="{{ route('player.bookings.index') }}" class="btn-text">View All Courts
+                    <span class="material-symbols-rounded md-icon-24">
+                        chevron_right
+                    </span>
+                </a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($featuredCourts as $court)
-                <div class="bg-white rounded-xl border border-neutral-200 overflow-hidden group hover:shadow-lg transition-all">
+                <div class="bg-white rounded-xl border border-neutral-200 overflow-hidden group hover:bg-neutral-50 transition-colors">
                     <div class="relative h-48">
-                        <img src="{{ $court->image_path }}" alt="{{ $court->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <x-cloudinary::image
+                            public-id="{{ $court->image_path }}"
+                            alt="{{ $court->name }}"
+                            class="size-full aspect-square object-cover rounded-lg border border-neutral-200"
+                            fetch-format="auto"
+                            quality="auto" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                         <div class="absolute bottom-4 left-4 text-white">
                             <h3 class="text-lg font-semibold">{{ $court->name }}</h3>
@@ -130,7 +143,7 @@
                                 <span class="text-sm text-neutral-600">Weekday: per hour</span>
                                 <span class="text-sm text-neutral-600">Weekend: whole day</span>
                             </div>
-                            <a href="{{ route('player.book') }}" class="btn-filled text-sm">Book Now</a>
+                            <a href="{{ route('player.bookings.index') }}" class="btn-filled text-sm">Book Now</a>
                         </div>
                     </div>
                 </div>
@@ -140,11 +153,15 @@
     </section>
 
     <!-- Upcoming Bookings -->
-    <section class="bg-white rounded-2xl shadow-lg p-8">
+    <section class="bg-white rounded-xl border border-neutral-200 p-8">
         <div class="flex flex-col gap-6">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold">Upcoming Bookings</h2>
-                <a href="{{ route('player.myBookings') }}" class="btn-filled-tonal text-sm">View All Bookings</a>
+                <a href="{{ route('player.bookings.my') }}" class="btn-text text-sm">View All Bookings
+                    <span class="material-symbols-rounded md-icon-24">
+                        chevron_right
+                    </span>
+                </a>
             </div>
 
             <div class="overflow-x-auto">
