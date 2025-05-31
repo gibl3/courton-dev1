@@ -32,12 +32,11 @@
 
             <div class="flex items-center gap-x-2.5">
                 <div class="relative" x-data="{ isOpen: false }" @click.away="isOpen = false">
-                    <button @click="isOpen = !isOpen" class="btn-filled-tonal flex items-center gap-x-1">
+                    <button @click="isOpen = !isOpen" class="btn-filled-tonal">
                         <span class="material-symbols-rounded">
                             admin_panel_settings
                         </span>
                         <span x-text="user.name"></span>
-                        <span class="material-symbols-rounded text-lg transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
                     </button>
                     <div x-show="isOpen"
                         x-transition:enter="transition ease-out duration-100"
@@ -46,16 +45,22 @@
                         x-transition:leave="transition ease-in duration-75"
                         x-transition:leave-start="transform opacity-100 scale-100"
                         x-transition:leave-end="transform opacity-0 scale-95"
-                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50">
-                        <div class="py-1">
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 z-50" x-cloak>
+
+                        <div class="py-2">
+                            <!-- Profile Settings -->
                             <a href="{{ route('admin.settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
                                 <span class="material-symbols-rounded text-lg">person</span>
                                 Profile Settings
                             </a>
+
+                            <!-- System Settings -->
                             <a href="{{ route('admin.settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
                                 <span class="material-symbols-rounded text-lg">settings</span>
                                 System Settings
                             </a>
+
+                            <!-- Logout -->
                             <form method="POST" action="{{ route('auth.logout') }}" class="block">
                                 @csrf
                                 @method('post')
@@ -111,7 +116,7 @@
                         <span class="material-symbols-rounded text-lg transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
                     </button>
                     <div x-show="isOpen" x-cloak class="mt-1 ml-4 space-y-1">
-                        <a href="{{ route('admin.bookings') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings') ? 'bg-rose-50 text-rose-600' : '' }}">
+                        <a href="{{ route('admin.bookings.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.index') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">list</span>
                             <span>All Bookings</span>
                         </a>
