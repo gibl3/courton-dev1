@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorsDiv = document.getElementById("errors-div");
 
     // Setup password toggle if needed
-    // setupPasswordToggle(document.getElementById("password"));
+    setupPasswordToggle(
+        document.getElementById("toggle-password"),
+        document.getElementById("password")
+    );
 
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -30,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             // Success - display message and redirect
+            form.disabled = true;
             window.location.href = data.redirect;
         } catch (error) {
             displayResponse(

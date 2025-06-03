@@ -21,7 +21,7 @@
                         <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg hidden text-sm" id="errors-div"></div>
 
                         <!-- Email Field -->
-                        <div class="space-y-2">
+                        <div class="space-y-1">
                             <label for="email" class="block text-sm font-medium text-neutral-700">Email address</label>
                             <div class="relative">
                                 <input type="email" name="email" id="email"
@@ -31,7 +31,7 @@
                         </div>
 
                         <!-- Password Field -->
-                        <div class="space-y-2">
+                        <div class="space-y-1">
                             <div class="flex items-center justify-between">
                                 <label for="password" class="block text-sm font-medium text-neutral-700">Password</label>
                                 <a href="" class="text-xs text-rose-600/80 font-medium hover:text-rose-700 transition-colors">Forgot password?</a>
@@ -41,13 +41,13 @@
                                     class="input-base pr-12"
                                     placeholder="Enter your password" />
                                 <button type="button" id="toggle-password"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-0 bg-transparent border-0">
+                                    class="btn-base absolute right-3 top-1/2 -translate-y-1/2 p-0 bg-transparent border-0">
                                     <span class="material-symbols-rounded text-neutral-500">visibility</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-1">
                             <div class="g-recaptcha w-full" data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}"></div>
                         </div>
 
