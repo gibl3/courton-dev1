@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-bold">Create Booking</h1>
             <p class="text-sm text-neutral-600">Book a court for a user</p>
         </div>
-        <a href="{{ route('admin.bookings') }}" class="btn-outline flex items-center gap-2">
+        <a href="{{ route('admin.bookings.index') }}" class="btn-outline flex items-center gap-2">
             <span class="material-symbols-rounded">arrow_back</span>
             Back to Bookings
         </a>
