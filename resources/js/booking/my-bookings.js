@@ -45,44 +45,4 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
-
-    // Handle view booking button clicks
-    document.querySelectorAll(".view-booking").forEach((button) => {
-        button.addEventListener("click", function () {
-            const bookingId = this.dataset.bookingId;
-            // TODO: Implement view booking functionality
-            console.log("View booking:", bookingId);
-        });
-    });
-
-    // Handle cancel booking button clicks
-    document.querySelectorAll(".cancel-booking").forEach((button) => {
-        button.addEventListener("click", function () {
-            const bookingId = this.dataset.bookingId;
-            if (confirm("Are you sure you want to cancel this booking?")) {
-                fetch(`/player/bookings/${bookingId}/cancel`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]'
-                        ).content,
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.success) {
-                            window.location.reload();
-                        } else {
-                            alert(data.message || "Failed to cancel booking");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        alert("An error occurred while cancelling the booking");
-                    });
-            }
-        });
-    });
 });

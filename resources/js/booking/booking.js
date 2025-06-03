@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function () {
             const courtData = JSON.parse(this.dataset.court);
             selectedCourt = courtData;
+
+            // Update court summary
             courtName.textContent = selectedCourt.name;
             courtType.textContent = `${selectedCourt.type} Court`;
             pricePerHour.textContent = `₱${parseFloat(
@@ -356,28 +358,37 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
             // Send booking data to server
-            fetch("/player/book/confirm", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector(
-                        'meta[name="csrf-token"]'
-                    ).content,
-                },
-                body: JSON.stringify(bookingData),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.message) {
-                        alert(data.message);
-                        if (data.booking) {
-                            window.location.href = "/player/my-bookings";
-                        }
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    alert("An error occurred while creating your booking");
-                });
+            createBooking(bookingData);
         });
 });
+
+async function createBooking(bookingData) {
+    try {
+        const response = await fetch("/player/bookings/confirm", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: JSON.stringify(bookingData),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw data.errors || "Failed to create booking";
+        }
+
+        if (data.message) {
+            alert(data.message);
+            if (data.booking) {
+                window.location.href = "/player/bookings/my";
+            }
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert(error || "An error occurred while creating your booking");
+    }
+}
