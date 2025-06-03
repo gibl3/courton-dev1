@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         [x-cloak] {
             display: none;
@@ -126,11 +128,11 @@
                         </a>
                         <a href="{{ route('admin.bookings.pending') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.pending') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">pending</span>
-                            <span>Pending Bookings</span>
+                            <span>Booking Status</span>
                         </a>
                         <a href="{{ route('admin.bookings.pendingPayments') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-neutral-700 hover:bg-neutral-100 transition-colors {{ request()->routeIs('admin.bookings.pendingPayments') ? 'bg-rose-50 text-rose-600' : '' }}">
                             <span class="material-symbols-rounded text-lg">payments</span>
-                            <span>Pending Payments</span>
+                            <span>Payment Status</span>
                         </a>
                     </div>
                 </div>
