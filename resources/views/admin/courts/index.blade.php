@@ -210,10 +210,10 @@
                                 <a href="{{ route('admin.courts.edit', $court) }}" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                     <span class="material-symbols-rounded">edit</span>
                                 </a>
-                                <form action="{{ route('admin.courts.destroy', $court) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete {{ $court->name }}? This action cannot be undone.');">
+                                <form action="{{ route('admin.courts.destroy', $court) }}" method="POST" class="inline" id="delete-form-{{ $court->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                    <button type="button" onclick="confirmDelete('{{ $court->id }}', '{{ $court->name }}')" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                         <span class="material-symbols-rounded">delete</span>
                                     </button>
                                 </form>
@@ -241,3 +241,45 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function confirmDelete(courtId, courtName) {
+        Swal.fire({
+            title: 'Delete Court',
+            text: `Are you sure you want to delete ${courtName}? This action cannot be undone.`,
+            icon: false,
+            showCancelButton: true,
+            showCloseButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'swal2-popup',
+                title: 'swal2-title',
+                htmlContainer: 'swal2-html-container',
+                confirmButton: 'btn-filled-tonal',
+                cancelButton: 'btn-filled',
+                closeButton: 'swal2-close',
+                actions: 'swal2-actions flex justify-end gap-2'
+            },
+            buttonsStyling: false,
+            reverseButtons: false,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            allowEnterKey: true,
+            stopKeydownPropagation: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeIn animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutDown animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${courtId}`).submit();
+            }
+        });
+    }
+</script>
+@endpush
