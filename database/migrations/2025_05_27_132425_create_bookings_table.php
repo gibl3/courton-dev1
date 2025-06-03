@@ -21,7 +21,8 @@ return new class extends Migration
             $table->decimal('duration', 4, 1); // in hours
             $table->decimal('total_amount', 8, 2);
             $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
-            $table->enum('payment_status', ['pending', 'paid', 'refunded'])->default('pending');
+            $table->enum('payment_status', ['pending', 'pending_refund', 'paid', 'refunded', 'cancelled'])->default('pending');
+            $table->text('cancellation_reason')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });
