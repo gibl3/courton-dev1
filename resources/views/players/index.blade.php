@@ -41,12 +41,10 @@
             <div class="flex items-center gap-4">
                 <div class="size-16 rounded-full bg-rose-100 flex items-center justify-center">
                     <img
-                        src="{{ Auth::user()->avatar }}"
-                        alt="{{ Auth::user()->full_name }}"
-                        class="size-full rounded-full object-cover border border-neutral-200"
-                        loading="lazy"
-                        referrerpolicy="no-referrer"
-                        crossorigin="anonymous">
+                        src="{{ Auth::user()->avatar ?? 'https://api.dicebear.com/9.x/bottts/svg?seed=' . Auth::user()->getFullNameAttribute() .
+                        '&backgroundColor=c70036'}}"
+                        alt="{{ Auth::user()->getFullNameAttribute() }}"
+                        class="size-full rounded-full object-cover border border-neutral-200">
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold">Welcome back, {{ Auth::user()->getFullNameAttribute()}}!</h1>
@@ -67,7 +65,7 @@
                     </span>
                 </div>
                 <div>
-                    <p class="text-sm text-neutral-600">Active Bookings</p>
+                    <p class="text-sm text-neutral-600">Upcoming Bookings</p>
                     <h3 class="text-2xl font-bold">{{ $activeBookings->count() }}</h3>
                 </div>
             </div>
@@ -108,7 +106,7 @@
     <section class="bg-white rounded-xl border border-neutral-200 p-8">
         <div class="flex flex-col gap-6">
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-bold">Featured Courts</h2>
+                <h2 class="text-xl font-bold">Popular Courts</h2>
                 <a href="{{ route('player.bookings.index') }}" class="btn-text">View All Courts
                     <span class="material-symbols-rounded md-icon-24">
                         chevron_right
@@ -117,7 +115,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($featuredCourts as $court)
+                @forelse($featuredCourts as $court)
                 <div class="bg-white rounded-xl border border-neutral-200 overflow-hidden group hover:bg-neutral-50 transition-colors">
                     <div class="relative h-48">
                         <x-cloudinary::image
@@ -135,19 +133,25 @@
                     <div class="p-4 space-y-4">
                         <div class="flex items-center gap-x-2 text-rose-600">
                             <span class="material-symbols-rounded">schedule</span>
-                            <span>{{ $court->opening_time->format('g:i A') }} - {{ $court->closing_time->format('g:i A') }}</span>
+                            <span>{{ $court->formatted_opening_time }} - {{ $court->formatted_closing_time }}</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col">
                                 <span class="text-lg font-bold">₱{{ number_format($court->rate_per_hour, 2) }}</span>
-                                <span class="text-sm text-neutral-600">Weekday: per hour</span>
-                                <span class="text-sm text-neutral-600">Weekend: whole day</span>
+                                <p class="text-sm text-neutral-600">Weekend: ₱<span class="text-neutral-700 font-medium">{{ $court->weekend_rate_per_hour }}</span></p>
                             </div>
                             <a href="{{ route('player.bookings.index') }}" class="btn-filled text-sm">Book Now</a>
                         </div>
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <div class="col-span-3 text-center text-neutral-600">
+                    <span class="material-symbols-rounded md-icon-36 text-neutral-500">
+                        upcoming
+                    </span>
+                    <p>Courts available soon...</p>
+                </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -158,32 +162,38 @@
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold">Upcoming Bookings</h2>
                 <a href="{{ route('player.bookings.my') }}" class="btn-text text-sm">View All Bookings
-                    <span class="material-symbols-rounded md-icon-24">
+                    <span class="material-symbols-rounded">
                         chevron_right
                     </span>
                 </a>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full">
+                @if ($activeBookings->count() > 0)
+
+                    <table class="w-full">
                     <thead>
                         <tr class="border-b border-neutral-200">
                             <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Court</th>
                             <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Date</th>
                             <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Time</th>
-                            <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Status</th>
+                            <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Booking Status</th>
+                            <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Payment Status</th>
                             <th class="text-left py-4 px-6 text-sm font-medium text-neutral-600">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-neutral-200">
-                        @forelse($activeBookings as $booking)
+                        @foreach($activeBookings as $booking)
                         <tr>
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-3">
                                     <div class="size-10 rounded-lg bg-rose-100 flex items-center justify-center">
-                                        <span class="material-symbols-rounded text-rose-600">
-                                            sports_tennis
-                                        </span>
+                                        <x-cloudinary::image
+                                            public-id="{{ $booking->court->image_path }}"
+                                            alt="{{ $booking->court->name }}"
+                                            class="size-full aspect-square object-cover rounded-lg border border-neutral-200"
+                                            fetch-format="auto"
+                                            quality="auto" />
                                     </div>
                                     <div>
                                         <p class="font-medium">{{ $booking->court->name }}</p>
@@ -203,18 +213,32 @@
                                 </span>
                             </td>
                             <td class="py-4 px-6">
-                                <button class="btn-base text-sm">View Details</button>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {{ $booking->payment_status === 'paid' ? 'bg-green-100 text-green-800' : 
+                                   ($booking->payment_status === 'refunded' ? 'bg-blue-100 text-blue-800' : 
+                                    ($booking->payment_status === 'pending_refund' ? 'bg-yellow-100 text-yellow-800' :
+                                    ($booking->payment_status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'))) }}">
+                                    {{ ucfirst($booking->payment_status) }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6">
+                                <a href="{{ route('player.bookings.show', $booking->id) }}" class="btn-text py-1.5 px-3">View</a>
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="py-8 px-6 text-center text-neutral-600">
-                                No upcoming bookings found
-                            </td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
-                </table>
+                    </table>
+                    @else
+                    <div colspan="6" class="py-8 px-6 text-center text-neutral-600">
+                        <div class="text-center text-neutral-600">
+                            <span class="material-symbols-rounded md-icon-36 text-neutral-500">
+                                upcoming
+                            </span>
+                            <p>No upcoming bookings...</p>
+                        </div>
+                    </div>
+                    @endif
             </div>
         </div>
     </section>
