@@ -13,6 +13,7 @@
     @stack('scripts')
     @vite('resources/css/app.css')
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>@yield('title', 'Player Dashboard - Courton')</title>
 </head>
 
@@ -33,17 +34,18 @@
 
         <div class="flex-1 flex justify-end gap-x-2.5">
             <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="btn-base p-1">
+                <!-- <div class="flex items-center gap-x-2"> -->
+                <button @click="open = !open" class="btn-text px-3 py-1.5">
                     <img
-                        src="{{ Auth::user()->avatar }}"
-                        alt="{{ Auth::user()->full_name }}"
-                        class="w-8 h-8 rounded-full object-cover border border-neutral-200"
-                        loading="lazy"
-                        referrerpolicy="no-referrer"
-                        crossorigin="anonymous">
+                        src="{{ Auth::user()->avatar ?? 'https://api.dicebear.com/9.x/bottts/svg?seed=' . Auth::user()->fullName .
+                        '&backgroundColor=c70036'}}"
+                        alt="{{ Auth::user()->fullName }}"
+                        class="size-10 rounded-full object-cover border border-neutral-200">
                     {{ auth()->user()->first_name }}
                     <span class="material-symbols-rounded transition-transform" :class="{ 'rotate-180': open }">expand_more</span>
                 </button>
+                <!-- </div> -->
+
                 <div x-show="open"
                     x-cloak
                     x-transition:enter="transition ease-out duration-200"
