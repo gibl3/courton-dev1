@@ -23,11 +23,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(3, 5)
+            return Limit::perMinute(3, 1)
                 ->by($request->input('email') . '|' . $request->ip())
                 ->response(function (Request $request, array $headers) {
+                    $retryAfter = $headers['Retry-After'];
+
                     return response()->json([
-                        $retryAfter = $headers['Retry-After'],
                         'message' => 'Too many login attempts',
                         'retry_after' => $retryAfter,
                         'available_in' => $retryAfter
