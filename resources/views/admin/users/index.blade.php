@@ -4,6 +4,25 @@
 
 @section('content')
 <div class="flex flex-col gap-8">
+    <!-- Session Messages -->
+    @if(session('success'))
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4" role="alert">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-rounded text-emerald-500">check_circle</span>
+            <p class="text-sm font-medium">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4" role="alert">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-rounded text-rose-500">error</span>
+            <p class="text-sm font-medium">{{ session('error') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex items-center justify-between">
         <div>
@@ -160,9 +179,9 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                <a href="{{ route('admin.users.edit', $user) }}" class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                     <span class="material-symbols-rounded">edit</span>
-                                </button>
+                                </a>
                                 <button class="p-2 text-neutral-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                     <span class="material-symbols-rounded">delete</span>
                                 </button>
