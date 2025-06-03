@@ -179,7 +179,7 @@
 <!-- Form Actions -->
 <div class="p-6 bg-neutral-50 rounded-b-xl">
     <div class="flex items-center justify-end gap-3">
-        <a href="{{ route('admin.courts.index') }}" class="btn-outline">Cancel</a>
+        <a href="{{ route('admin.courts.index') }}" class="btn-text">Cancel</a>
         <button type="submit" class="btn-filled flex items-center gap-2">
             <span class="material-symbols-rounded">save</span>
             Update Court
