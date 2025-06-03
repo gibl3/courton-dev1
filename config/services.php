@@ -35,4 +35,27 @@ return [
         ],
     ],
 
+    'recaptcha' => [
+        'site_key' => env('GOOGLE_RECAPTCHA_KEY'),
+        'secret_key' => env('GOOGLE_RECAPTCHA_SECRET'),
+        'admin_site_key' => env('ADMIN_RECAPTCHA_SITE_KEY'),
+        'admin_secret_key' => env('ADMIN_RECAPTCHA_SECRET_KEY'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
+    'abstractApi' => [
+        'email_validation' => [
+            'enabled' => env('GOOGLE_EMAIL_VALIDATION_ENABLED', false),
+            'api_key' => env('GOOGLE_EMAIL_VALIDATION_API_KEY'),
+        ],
+    ],
+
+    'ransAuthApi' => [
+        'api_key' => env('RANZ_AUTH_API'),
+    ],
 ];
