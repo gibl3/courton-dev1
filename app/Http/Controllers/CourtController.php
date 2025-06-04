@@ -9,11 +9,14 @@ class CourtController extends Controller
 {
     public function index()
     {
-        $courts = Court::where('status', 'available')
-            ->orderBy('type')
-            ->orderBy('rate_per_hour')
-            ->orderBy('weekend_rate_per_hour')
-            ->get();
+        $courts = Court::all();
+        $courts = Court::all()->map(function ($court) {
+            // Format the availability display
+            $court->today_availability = $court->formatted_opening_time . ' - ' . $court->formatted_closing_time;
+            $court->is_available_today = $court->status === 'available';
+
+            return $court;
+        });
 
         return view('courts.index', compact('courts'));
     }
