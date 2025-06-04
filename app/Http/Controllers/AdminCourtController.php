@@ -5,29 +5,50 @@ namespace App\Http\Controllers;
 use App\Models\Court;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class AdminCourtController extends Controller
 {
+    protected $cloudinary;
+
+    public function __construct()
+    {
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => config('cloudinary.cloud_name'),
+                'api_key'    => config('cloudinary.api_key'),
+                'api_secret' => config('cloudinary.api_secret'),
+            ],
+            'url' => [
+                'secure' => config('cloudinary.secure', true)
+            ]
+        ]);
+        $this->cloudinary = new Cloudinary();
+    }
+
     public function index(Request $request)
     {
         $query = Court::query();
 
         // Search
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('type', 'like', "%{$search}%");
             });
         }
 
         // Type filter
-        if ($request->has('type') && $request->type !== '') {
+        if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
         // Status filter
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
@@ -65,7 +86,18 @@ class AdminCourtController extends Controller
             'weekend_rate_per_hour' => 'required|numeric|min:0',
             'opening_time' => 'required|date_format:H:i',
             'closing_time' => 'required|date_format:H:i|after:opening_time',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $result = $this->cloudinary->uploadApi()->upload($image->getRealPath(), [
+                'folder' => 'courts',
+                'resource_type' => 'image',
+                'public_id' => 'court_' . time() . '_' . uniqid()
+            ]);
+            $validated['image_path'] = $result['public_id'];
+        }
 
         $court = Court::create($validated);
 
@@ -90,7 +122,24 @@ class AdminCourtController extends Controller
             'weekend_rate_per_hour' => 'required|numeric|min:0',
             'opening_time' => 'required|date_format:H:i',
             'closing_time' => 'required|date_format:H:i|after:opening_time',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($court->image_path) {
+                $this->cloudinary->uploadApi()->destroy($court->image_path);
+            }
+
+            // Upload new image
+            $image = $request->file('image');
+            $result = $this->cloudinary->uploadApi()->upload($image->getRealPath(), [
+                'folder' => 'courts',
+                'resource_type' => 'image',
+                'public_id' => 'court_' . time() . '_' . uniqid()
+            ]);
+            $validated['image_path'] = $result['public_id'];
+        }
 
         $court->update($validated);
 
@@ -101,16 +150,14 @@ class AdminCourtController extends Controller
 
     public function destroy(Court $court)
     {
-        // Check if court has any bookings
-        if ($court->bookings()->exists()) {
-            return back()->with('error', 'Cannot delete court with existing bookings.');
+        // Delete the court's image if it exists
+        if ($court->image_path) {
+            $this->cloudinary->uploadApi()->destroy($court->image_path);
         }
 
         $court->delete();
 
-        return redirect()
-            ->route('admin.courts.index')
-            ->with('success', 'Court deleted successfully.');
+        return back()->with('success', 'Court deleted successfully.');
     }
 
     public function updateStatus(Court $court, Request $request)

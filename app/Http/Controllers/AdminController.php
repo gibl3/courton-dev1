@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\Court;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -22,6 +22,8 @@ class AdminController extends Controller
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
+                'google_id' => null, 
+                'avatar' => null, 
             ]);
 
             return response()->json([
@@ -49,7 +51,7 @@ class AdminController extends Controller
         // Get dashboard statistics
         $stats = [
             'total_bookings' => Booking::count(),
-            'active_courts' => \App\Models\Court::where('status', 'available')->count(),
+            'active_courts' => Court::where('status', 'available')->count(),
             'total_users' => User::count(),
             'revenue' => Booking::where('status', Booking::STATUS_COMPLETED)
                 ->where('payment_status', Booking::PAYMENT_STATUS_PAID)
