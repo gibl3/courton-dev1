@@ -9,9 +9,9 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        $featuredCourts = Court::where('type', 'professional')
+        $featuredCourts = Court::withCount('bookings')
             ->where('status', 'available')
-            ->orderBy('rate_per_hour', 'desc')
+            ->orderBy('bookings_count', 'desc')
             ->take(3)
             ->get();
 
