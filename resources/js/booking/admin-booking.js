@@ -51,8 +51,8 @@ function handleUserSelection(userId, userName, userEmail) {
     clearSearchResults();
 }
 
-// Update time slots based on selected date
-function updateTimeSlots(selectedDate) {
+// Update time slots based on selected date and court
+function updateTimeSlots(selectedDate, courtData) {
     const startTimeSelect = document.getElementById("start-time");
     const endTimeSelect = document.getElementById("end-time");
     const timeSlotInfo = document.getElementById("time-slot-info");
@@ -61,32 +61,37 @@ function updateTimeSlots(selectedDate) {
     startTimeSelect.innerHTML = '<option value="">Select start time</option>';
     endTimeSelect.innerHTML = '<option value="">Select end time</option>';
 
+    if (!selectedDate || !courtData) {
+        timeSlotInfo.textContent =
+            "Select a date and court to view available time slots";
+        return;
+    }
+
     const date = new Date(selectedDate);
     const isWeekend = date.getDay() === 0 || date.getDay() === 6;
 
     if (isWeekend) {
         // Weekend booking - whole day only
-        startTimeSelect.innerHTML += '<option value="06:00">6:00 AM</option>';
-        endTimeSelect.innerHTML += '<option value="22:00">10:00 PM</option>';
+        startTimeSelect.innerHTML += `<option value="${
+            courtData.opening_time
+        }">${formatTime(courtData.opening_time)}</option>`;
+        endTimeSelect.innerHTML += `<option value="${
+            courtData.closing_time
+        }">${formatTime(courtData.closing_time)}</option>`;
         timeSlotInfo.textContent = "Weekend bookings are for the whole day";
 
         // Auto-select the only available option
-        startTimeSelect.value = "06:00";
-        endTimeSelect.value = "22:00";
+        startTimeSelect.value = courtData.opening_time;
+        endTimeSelect.value = courtData.closing_time;
     } else {
         // Weekday booking - hourly slots
-        const start = new Date(selectedDate + "T08:00:00");
-        const end = new Date(selectedDate + "T21:00:00");
+        const start = new Date(selectedDate + "T" + courtData.opening_time);
+        const end = new Date(selectedDate + "T" + courtData.closing_time);
         const current = new Date(start);
 
         while (current < end) {
             const timeValue = current.toTimeString().slice(0, 5);
-            const timeDisplay = current.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-            });
-
+            const timeDisplay = formatTime(timeValue);
             startTimeSelect.innerHTML += `<option value="${timeValue}">${timeDisplay}</option>`;
             current.setHours(current.getHours() + 1);
         }
@@ -95,18 +100,24 @@ function updateTimeSlots(selectedDate) {
         current.setHours(start.getHours() + 1);
         while (current <= end) {
             const timeValue = current.toTimeString().slice(0, 5);
-            const timeDisplay = current.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-            });
-
+            const timeDisplay = formatTime(timeValue);
             endTimeSelect.innerHTML += `<option value="${timeValue}">${timeDisplay}</option>`;
             current.setHours(current.getHours() + 1);
         }
 
         timeSlotInfo.textContent = "Select your preferred start and end times";
     }
+
+    updateBookingSummary();
+}
+
+// Helper function to format time
+function formatTime(timeString) {
+    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    });
 }
 
 // Update booking summary
@@ -167,17 +178,8 @@ function updateBookingSummary() {
             return;
         }
 
-        const formattedStartTime = startTime.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        });
-
-        const formattedEndTime = endTime.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        });
+        const formattedStartTime = formatTime(startTimeSelect.value);
+        const formattedEndTime = formatTime(endTimeSelect.value);
 
         timeSummary.querySelector(
             "p"
@@ -293,19 +295,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize time slots based on today's date
     if (bookingDate.value) {
-        updateTimeSlots(bookingDate.value);
+        const selectedOption = courtSelect.options[courtSelect.selectedIndex];
+        const courtData = selectedOption.dataset.court
+            ? JSON.parse(selectedOption.dataset.court)
+            : null;
+        updateTimeSlots(bookingDate.value, courtData);
     }
 
     // Update time slots when date changes
     bookingDate.addEventListener("change", function () {
         if (this.value) {
-            updateTimeSlots(this.value);
-            updateBookingSummary();
+            const selectedOption =
+                courtSelect.options[courtSelect.selectedIndex];
+            const courtData = selectedOption.dataset.court
+                ? JSON.parse(selectedOption.dataset.court)
+                : null;
+            updateTimeSlots(this.value, courtData);
         }
     });
 
     // Update summary when court changes
-    courtSelect.addEventListener("change", updateBookingSummary);
+    courtSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const courtData = selectedOption.dataset.court
+            ? JSON.parse(selectedOption.dataset.court)
+            : null;
+        if (bookingDate.value) {
+            updateTimeSlots(bookingDate.value, courtData);
+        }
+        updateBookingSummary();
+    });
 
     userSearchInput.addEventListener(
         "input",
