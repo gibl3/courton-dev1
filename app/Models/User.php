@@ -23,6 +23,8 @@ class User extends Authenticatable
         'phone',
         'password',
         'role', // 'admin', 'player'
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -40,13 +42,10 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     /**
      * Set the first name attribute.
