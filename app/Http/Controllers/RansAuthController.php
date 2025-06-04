@@ -14,6 +14,10 @@ use App\Rules\AdminReCaptchaRule;
 
 class RansAuthController extends Controller
 {
+    /**
+     * The RANS API root URI
+     */
+    private $ransApiRoot = 'https://e54f-122-54-183-231.ngrok-free.app/api/';
 
     /**
      * Register a new user through RANS API
@@ -38,7 +42,7 @@ class RansAuthController extends Controller
             $response = Http::withHeaders([
                 'X-API-Key' => $apiKey,
                 'Accept' => 'application/json',
-            ])->post('https://df8f-122-54-183-231.ngrok-free.app/api/register.php', [
+            ])->post($this->ransApiRoot . '/register.php', [
                 'email' => $validated['email'],
                 'password' => $validated['password'],
             ]);
@@ -70,7 +74,7 @@ class RansAuthController extends Controller
             return response()->json([
                 'message' => 'Registration successful. Please check your email for the verification code.',
                 'user' => $responseData['data'],
-                'redirect' => route('auth.showOTP')
+                'redirect' => route('auth.login')
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -103,11 +107,20 @@ class RansAuthController extends Controller
             // Get the API key from config
             $apiKey = config('services.ransAuthApi.api_key');
 
+            // Get email from session
+            $email = $request->session()->get('pending_verification_email');
+            if (!$email) {
+                return response()->json([
+                    'message' => 'Verification session expired',
+                    'error' => 'Please log in again'
+                ], 401);
+            }
+
             $response = Http::withHeaders([
                 'X-API-Key' => $apiKey,
                 'Accept' => 'application/json',
-            ])->post('https://df8f-122-54-183-231.ngrok-free.app/api/verify-email.php', [
-                'email' => Auth::user()->email,
+            ])->post($this->ransApiRoot . 'verify-email.php', [
+                'email' => $email,
                 'otp' => $validated['otp'],
             ]);
 
@@ -120,15 +133,61 @@ class RansAuthController extends Controller
                 ], 400);
             }
 
-            // Update email_verified_at
-            User::where('id', Auth::id())->update([
-                'email_verified_at' => now()
+            // Get the API key from config
+            $apiKey = config('services.ransAuthApi.api_key');
+
+            // Make the API request to verify login
+            $loginResponse = Http::withHeaders([
+                'X-API-Key' => $apiKey,
+                'Accept' => 'application/json',
+            ])->post($this->ransApiRoot . 'login.php', [
+                'email' => $request->session()->get('rans_auth_token'),
+                'password' => $request->session()->get('rans_auth_token'),
             ]);
 
-            return response()->json([
-                'message' => 'Email verified successfully',
-                'redirect' => route('player.dashboard')
-            ]);
+
+            $loginResponseData = $loginResponse->json();
+
+            if ($loginResponse->successful()) {
+                // Store RANS auth token in session
+                if (isset($loginResponseData['data']['auth_token'])) {
+                    $request->session()->put('rans_auth_token', $loginResponseData['data']['auth_token']);
+                    $request->session()->put('rans_token_expires_at', $loginResponseData['data']['expires_at']);
+                }
+
+                // Get user data from RANS API response
+                $userData = $loginResponseData['data'] ?? null;
+
+                if ($userData) {
+                    // Create or update user in local database
+                    $user = User::firstOrCreate(
+                        ['email' => $userData['email']],
+                        [
+                            'first_name' => '',  // These fields will be empty initially
+                            'last_name' => '',   // as they're not provided in the API response
+                            'password' => Hash::make($request->session()->get('rans_auth_token')),
+                            'role' => 'player'
+                        ]
+                    );
+
+                    // Clear the pending verification data from session
+                    $request->session()->forget(['pending_verification_email', 'pending_password']);
+                    // Log the user in
+                    Auth::login($user);
+                    $request->session()->regenerate();
+
+                    return response()->json([
+                        'message' => 'Logged in successfully',
+                        'redirect' => route('player.dashboard')
+                    ]);
+                }
+            }
+
+
+            // return response()->json([
+            //     'message' => 'Email verified successfully',
+            //     'redirect' => route('player.dashboard')
+            // ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -148,11 +207,13 @@ class RansAuthController extends Controller
     public function resendOTP(Request $request)
     {
         try {
-            if (!Auth::check()) {
+            // Get registration data from session
+            $registrationData = $request->session()->get('registration_data');
+            if (!$registrationData) {
                 return response()->json([
-                    'message' => 'Not authenticated',
-                    'error' => 'Please login first'
-                ], 401);
+                    'message' => 'Registration session expired',
+                    'error' => 'Please register again'
+                ], 400);
             }
 
             // Get the API key from config
@@ -162,9 +223,8 @@ class RansAuthController extends Controller
             $response = Http::withHeaders([
                 'X-API-Key' => $apiKey,
                 'Accept' => 'application/json',
-            ])->post('https://df8f-122-54-183-231.ngrok-free.app/api/resend-otp.php', [
-                'email' => Auth::user()->email,
-                'purpose' => 'email-verification'
+            ])->post($this->ransApiRoot . '/resend-otp.php', [
+                'email' => $registrationData['email'],
             ]);
 
             if (!$response->successful()) {
@@ -172,11 +232,6 @@ class RansAuthController extends Controller
                     'message' => 'Failed to resend OTP',
                     'error' => $response->json()['message'] ?? 'Please try again later'
                 ], 400);
-            }
-
-            $responseData = $response->json();
-            if (isset($responseData['data']['otp'])) {
-                Auth::user()->notify(new OTPVerification($responseData['data']['otp']));
             }
 
             return response()->json([
@@ -199,67 +254,86 @@ class RansAuthController extends Controller
             $credentials = $request->validate([
                 'email' => ['required', 'email'],
                 'password' => 'required',
-                'g-recaptcha-response' => [
-                    $isAdminLogin ? new AdminReCaptchaRule : new ReCaptchaRule
-                ],
+                // 'g-recaptcha-response' => [
+                //     $isAdminLogin ? new AdminReCaptchaRule : new ReCaptchaRule
+                // ],
             ]);
 
             // Get the API key from config
             $apiKey = config('services.ransAuthApi.api_key');
 
             // Make the API request to verify login
-            $response = Http::withHeaders([
+            $loginResponse = Http::withHeaders([
                 'X-API-Key' => $apiKey,
                 'Accept' => 'application/json',
-            ])->post('https://df8f-122-54-183-231.ngrok-free.app/api/login.php', [
+            ])->post($this->ransApiRoot . 'login.php', [
                 'email' => $credentials['email'],
                 'password' => $credentials['password'],
             ]);
 
-            $responseData = $response->json();
+            $loginResponseData = $loginResponse->json();
+            // dd($loginResponseData);
 
-            if (!$response->successful()) {
-                return response()->json([
-                    'message' => 'Invalid credentials',
-                    'error' => $responseData['message'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Attempt to authenticate the user locally
-            if (Auth::attempt([
-                'email' => $credentials['email'],
-                'password' => $credentials['password']
-            ])) {
-                $request->session()->regenerate();
-
-                // Check if user is admin and redirect accordingly
-                if (Auth::user()->role === 'admin') {
-                    return response()->json([
-                        'message' => 'Logged in successfully',
-                        'redirect' => route('admin.index')
-                    ]);
+            if ($loginResponse->successful()) {
+                // Store RANS auth token in session
+                if (isset($loginResponseData['data']['auth_token'])) {
+                    $request->session()->put('rans_auth_token', $loginResponseData['data']['auth_token']);
+                    $request->session()->put('rans_token_expires_at', $loginResponseData['data']['expires_at']);
                 }
 
-                // Check if email is verified
-                if (!Auth::user()->email_verified_at) {
-                    // Store email in session for OTP verification
-                    session(['verification_email' => $credentials['email']]);
+                // Get user data from RANS API response
+                $userData = $loginResponseData['data'] ?? null;
 
-                    // Request new OTP
-                    $otpResponse = Http::withHeaders([
-                        'X-API-Key' => $apiKey,
-                        'Accept' => 'application/json',
-                    ])->post('https://df8f-122-54-183-231.ngrok-free.app/api/resend-otp.php', [
-                        'email' => $credentials['email'],
-                        'purpose' => 'email-verification'
+                if ($userData) {
+                    // Create or update user in local database
+                    $user = User::firstOrCreate(
+                        ['email' => $userData['email']],
+                        [
+                            'first_name' => '',  // These fields will be empty initially
+                            'last_name' => '',   // as they're not provided in the API response
+                            'password' => Hash::make($credentials['password']),
+                            'role' => 'player'
+                        ]
+                    );
+
+                    // Log the user in
+                    Auth::login($user);
+                    $request->session()->regenerate();
+
+                    return response()->json([
+                        'message' => 'Logged in successfully',
+                        'redirect' => route('player.dashboard')
                     ]);
+                }
+            } else {
+                // If login failed, check if we need to request OTP
+                $otpResponse = Http::withHeaders([
+                    'X-API-Key' => $apiKey,
+                    'Accept' => 'application/json',
+                ])->post($this->ransApiRoot . 'request-otp.php', [
+                    'email' => $credentials['email'],
+                    'purpose' => 'email-verification'
+                ]);
 
-                    if ($otpResponse->successful()) {
-                        $otpData = $otpResponse->json();
-                        if (isset($otpData['data']['otp'])) {
-                            Auth::user()->notify(new OTPVerification($otpData['data']['otp']));
-                        }
-                    }
+                $otpData = $otpResponse->json();
+
+                if ($otpResponse->successful() && isset($otpData['data']['otp'])) {
+                    // Create or get user for OTP notification
+                    $user = User::firstOrCreate(
+                        ['email' => $credentials['email']],
+                        [
+                            'first_name' => '',
+                            'last_name' => '',
+                            'password' => Hash::make($credentials['password']),
+                            'role' => 'player'
+                        ]
+                    );
+
+                    // Store email and password in session for OTP verification
+                    $request->session()->put('pending_verification_email', $credentials['email']);
+                    $request->session()->put('pending_password', $credentials['password']);
+
+                    $user->notify(new OTPVerification($otpData['data']['otp']));
 
                     return response()->json([
                         'message' => 'Please verify your email first',
@@ -268,9 +342,8 @@ class RansAuthController extends Controller
                 }
 
                 return response()->json([
-                    'message' => 'Logged in successfully',
-                    'redirect' => route('player.dashboard')
-                ]);
+                    'message' => 'Invalid credentials'
+                ], 401);
             }
 
             return response()->json([
@@ -285,6 +358,148 @@ class RansAuthController extends Controller
             return response()->json([
                 'message' => 'An error occurred while logging in',
                 'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Change user password both locally and through RANS API
+     */
+    public function changePassword(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'current_password' => ['required', 'string'],
+                'password' => ['required', 'confirmed', Password::defaults()],
+                'password_confirmation' => ['required'],
+            ]);
+
+            // Get the API key from config
+            $apiKey = config('services.ransAuthApi.api_key');
+
+            // Get the stored RANS auth token
+            $authToken = $request->session()->get('rans_auth_token');
+
+            // dd($authToken);
+            if (!$authToken) {
+                return response()->json([
+                    'message' => 'Authentication token not found',
+                    'error' => 'Please log in again'
+                ], 401);
+            }
+
+            // Make the API request to change password
+            $response = Http::withHeaders([
+                'X-API-Key' => $apiKey,
+                'Authorization' => $authToken,
+                'Accept' => 'application/json',
+            ])->post($this->ransApiRoot . 'change-password.php', [
+                'old_password' => $validated['current_password'],
+                'new_password' => $validated['password'],
+                'confirm_password' => $validated['password_confirmation'],
+            ]);
+
+            // dd($response->json());
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'message' => 'Password change failed',
+                    'error' => $response->json()['message'] ?? 'Failed to change password'
+                ], 400);
+            }
+
+            // Update password in local database
+            $user = Auth::user();
+            $user->password = Hash::make($validated['password']);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Password changed successfully'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while changing password',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete user account both from RANS API and local database
+     */
+    public function deleteUser(Request $request)
+    {
+        try {
+            $request->validate([
+                'password' => ['required', 'string'],
+            ]);
+
+            $user = Auth::user();
+
+            // Verify password
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'message' => 'Incorrect password'
+                ], 422);
+            }
+
+            // Get the API key from config
+            $apiKey = config('services.ransAuthApi.api_key');
+
+            // Get the stored RANS auth token
+            $authToken = $request->session()->get('rans_auth_token');
+
+            if (!$authToken) {
+                return response()->json([
+                    'message' => 'Authentication token not found',
+                    'error' => 'Please log in again'
+                ], 401);
+            }
+
+            // Make the API request to delete user
+            $response = Http::withHeaders([
+                'X-API-Key' => $apiKey,
+                'Accept' => 'application/json',
+            ])->post($this->ransApiRoot . 'delete-user.php', [
+                'email' => $user->email,
+            ]);
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'message' => 'Failed to delete user account from RANS API',
+                    'error' => $response->json()['message'] ?? 'Failed to delete user'
+                ], 400);
+            }
+
+            // Delete user's bookings first
+            $user->bookings()->delete();
+
+            // Delete user from local database
+            $user->delete();
+
+            // Clear the session
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return response()->json([
+                'message' => 'Account deleted successfully',
+                'redirect' => route('auth.login')
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete account',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
