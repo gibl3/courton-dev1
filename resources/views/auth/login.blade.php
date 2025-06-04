@@ -34,7 +34,7 @@
                         <div class="space-y-1">
                             <div class="flex items-center justify-between">
                                 <label for="password" class="block text-sm font-medium text-neutral-700">Password</label>
-                                <a href="" class="text-xs text-rose-600/80 font-medium hover:text-rose-700 transition-colors">Forgot password?</a>
+                                <a href="{{ route('auth.forgotPass') }}" class="text-xs text-rose-600/80 font-medium hover:text-rose-700 transition-colors">Forgot password?</a>
                             </div>
                             <div class="relative">
                                 <input type="password" name="password" id="password"

@@ -28,7 +28,7 @@
                     @endif
 
                     <!-- Login Form -->
-                    <form class="space-y-6" method="post" action="{{ route('auth.authenticate') }}" id="admin-login-form">
+                    <form class="space-y-6" method="post" action="{{ route('auth.admin.authenticate') }}" id="admin-login-form">
                         @csrf
                         <input type="hidden" name="admin_login" value="1">
 
