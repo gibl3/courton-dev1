@@ -17,10 +17,10 @@ class PlayerController extends Controller
      */
     public function index()
     {
-        // Get 3 featured courts (professional type)
-        $featuredCourts = Court::where('type', Court::TYPE_PROFESSIONAL)
+        // Get 3 courts with the most bookings
+        $featuredCourts = Court::withCount('bookings')
             ->where('status', 'available')
-            ->orderBy('rate_per_hour', 'desc')
+            ->orderBy('bookings_count', 'desc')
             ->take(3)
             ->get();
 

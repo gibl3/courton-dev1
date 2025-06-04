@@ -21,6 +21,7 @@ class UserController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
                 'phone' => ['nullable', 'string', 'max:20'],
                 'password' => ['required', 'confirmed', Password::defaults()],
+                'password_confirmation' => ['required'],
                 'terms' => ['required']
             ]);
 
@@ -34,11 +35,11 @@ class UserController extends Controller
             ]);
 
             // Create player profile
-            $user->player()->create([
-                'first_name' => $validated['first_name'],
-                'last_name' => $validated['last_name'],
-                'phone' => $validated['phone']
-            ]);
+            // $user->player()->create([
+            //     'first_name' => $validated['first_name'],
+            //     'last_name' => $validated['last_name'],
+            //     'phone' => $validated['phone']
+            // ]);
 
             return response()->json([
                 'message' => 'Account created successfully',
