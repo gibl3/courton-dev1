@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
+use App\Notifications\BookingCreated;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -20,11 +22,13 @@ class BookingController extends Controller
             ->get()
             ->map(function ($court) {
                 // Format the availability display
-                $court->today_availability = $court->opening_time->format('g:i A') . ' - ' . $court->closing_time->format('g:i A');
+                $court->today_availability = $court->formatted_opening_time . ' - ' . $court->formatted_closing_time;
                 $court->is_available_today = $court->status === 'available';
 
                 return $court;
             });
+
+        // dd($courts);
 
         return view('players.court-bookings.index', compact('courts'));
     }
@@ -43,14 +47,65 @@ class BookingController extends Controller
             $bookingDate = Carbon::parse($request->date);
             $isWeekend = $bookingDate->isWeekend();
 
-            // Calculate duration in hours
+            // Check if court is available for the requested time
             $startTime = Carbon::parse($request->start_time);
             $endTime = Carbon::parse($request->end_time);
+
+            // Validate court operating hours
+            $courtOpenTime = Carbon::parse($court->opening_time);
+            $courtCloseTime = Carbon::parse($court->closing_time);
+
+            // Check if start time is before opening time
+            if ($startTime->lt($courtOpenTime)) {
+                return response()->json([
+                    'message' => 'Booking time is outside court operating hours',
+                    'errors' => 'Court opens at ' . $courtOpenTime->format('g:i A')
+                ], 422);
+            }
+
+            // Check if end time is after closing time
+            if ($endTime->gt($courtCloseTime)) {
+                return response()->json([
+                    'message' => 'Booking time is outside court operating hours',
+                    'errors' => 'Court closes at ' . $courtCloseTime->format('g:i A')
+                ], 422);
+            }
+
+            // Check for double bookings
+            $existingBooking = Booking::where('court_id', $court->id)
+                ->where('user_id', Auth::user()->id)
+                ->where('booking_date', $bookingDate)
+                ->where(function ($query) use ($startTime, $endTime) {
+                    $query->whereBetween('start_time', [$startTime, $endTime])
+                        ->orWhereBetween('end_time', [$startTime, $endTime])
+                        ->orWhere(function ($q) use ($startTime, $endTime) {
+                            $q->where('start_time', '<=', $startTime)
+                                ->where('end_time', '>=', $endTime);
+                        });
+                })
+                ->where('status', '!=', 'cancelled')
+                ->first();
+
+            if ($existingBooking) {
+                return response()->json([
+                    'message' => 'Time slot is already booked',
+                    'errors' => 'This time slot is already booked. Please choose a different date and time.'
+                ], 422);
+            }
+
+            // Calculate duration in hours
             $duration = $startTime->diffInHours($endTime);
 
-            // Use appropriate rate based on weekend status
-            $rate = $isWeekend ? $court->weekend_rate_per_hour : $court->rate_per_hour;
-            $totalAmount = $rate * $duration;
+            // Validate minimum booking duration
+            if ($duration < 1) {
+                return response()->json([
+                    'message' => 'Invalid booking duration',
+                    'errors' => 'Minimum booking duration is 1 hour'
+                ], 422);
+            }
+
+            // Calculate total amount based on duration and rates
+            $totalAmount = $isWeekend ? $court->weekend_rate_per_hour : $court->rate_per_hour * $duration;
 
             // Create the booking
             $booking = Booking::create([
@@ -65,6 +120,17 @@ class BookingController extends Controller
                 'payment_status' => 'pending',
             ]);
 
+            // Send booking confirmation email
+            try {
+                $user = Auth::user();
+                Log::info('Attempting to send booking confirmation email to: ' . $user->email);
+                $user->notify(new BookingCreated($booking));
+                Log::info('Booking confirmation email sent successfully');
+            } catch (\Exception $e) {
+                Log::error('Failed to send booking confirmation email: ' . $e->getMessage());
+                // Continue with the response even if email fails
+            }
+
             return response()->json([
                 'message' => 'Booking created successfully',
                 'booking' => $booking
@@ -78,17 +144,12 @@ class BookingController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error('Court not found: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Selected court not found'
+                'message' => 'Court not found'
             ], 404);
-        } catch (QueryException $e) {
-            Log::error('Database error during booking creation: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to create booking due to database error'
-            ], 500);
         } catch (\Exception $e) {
-            Log::error('Unexpected error during booking creation: ' . $e->getMessage());
+            Log::error('Booking creation failed: ' . $e->getMessage());
             return response()->json([
-                'message' => 'An unexpected error occurred'
+                'message' => 'An error occurred while creating your booking'
             ], 500);
         }
     }
