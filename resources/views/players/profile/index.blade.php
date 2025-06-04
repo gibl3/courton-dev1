@@ -74,7 +74,7 @@
             <!-- Change Password -->
             <div class="bg-white rounded-xl border border-neutral-200 p-6">
                 <h2 class="text-lg font-semibold mb-6">Change Password</h2>
-                <form id="password-form" action="{{ route('player.profile.password') }}" method="POST" class="space-y-6">
+                <form id="password-form" action="{{ route('player.profile.change-password') }}" method="POST" class="space-y-6">
                     @csrf
                     @method('POST')
 
@@ -161,9 +161,9 @@
         <h3 class="text-lg font-semibold mb-4">Delete Account</h3>
         <p class="text-neutral-600 mb-6">This action cannot be undone. Please enter your password to confirm.</p>
 
-        <form id="delete-form" action="{{ route('player.profile.delete') }}" method="POST" class="space-y-4">
+        <form id="delete-form" action="{{ route('player.profile.deleteUser') }}" method="POST" class="space-y-4">
             @csrf
-            @method('DELETE')
+            @method('post')
 
             <div class="px-4 py-3 rounded-lg hidden text-sm" id="delete-response" hidden>
             </div>
