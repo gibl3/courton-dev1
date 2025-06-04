@@ -82,10 +82,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Password form submission
     passwordForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const formData = new FormData(profileForm);
+        const formData = new FormData(passwordForm);
 
         try {
-            const response = await fetch(profileForm.action, {
+            const response = await fetch(passwordForm.action, {
                 method: "POST",
                 headers: {
                     "X-CSRF-TOKEN": document
@@ -93,12 +93,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         .getAttribute("content"),
                     "Content-Type": "application/json",
                 },
-                body: formData,
+                body: JSON.stringify(Object.fromEntries(formData)),
             });
 
             if (response.status === 304) {
                 displayResponse(
-                    profileResponse,
+                    passwordResponse,
                     "No changes were made",
                     "info"
                 );
@@ -108,14 +108,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
 
             if (!response.ok) {
-                throw data.errors || "Failed to update profile";
+                throw data.errors || "Failed to update password";
             }
 
-            setTimeout(() => {
-                setFormState(passwordForm, true);
-            }, 2000);
-
+            setFormState(passwordForm, true);
             displayResponse(passwordResponse, data.message, "success");
+
+            setTimeout(() => {
+                setFormState(passwordForm, false);
+            }, 2000);
         } catch (error) {
             displayResponse(passwordResponse, error, "error");
         }
@@ -152,6 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             displayResponse(deleteResponse, data.message, "success");
+            window.location.href = data.redirect;
         } catch (error) {
             displayResponse(deleteResponse, error, "error");
         }
