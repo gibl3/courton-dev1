@@ -90,7 +90,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <p>{{ $booking->id }}</p>
-                        </td>   
+                        </td>
                         <td class="px-6 py-4">
                             <div class="font-medium">{{ $booking->user->getFullNameAttribute() ?? 'N/A' }}</div>
                             <div class="text-sm text-neutral-600">{{ $booking->user->email ?? 'N/A' }}</div>
@@ -209,8 +209,8 @@
                 .map(checkbox => {
                     const row = checkbox.closest('tr');
                     const id = checkbox.value;
-                    const name = row.querySelector('td:nth-child(2) .font-medium').textContent;
-                    const date = row.querySelector('td:nth-child(4) .font-medium').textContent;
+                    const name = row.querySelector('td:nth-child(3) .font-medium').textContent;
+                    const date = row.querySelector('td:nth-child(5) .font-medium').textContent;
                     return {
                         id,
                         name,
@@ -220,11 +220,11 @@
 
             selectedListCount.innerHTML = selectedBookings.length;
             selectedBookingsList.innerHTML = selectedBookings.map(booking => `
-            <div class="p-3">
-                <div class="font-medium">${booking.name}</div>
-                <div class="text-sm text-neutral-600">${booking.date}</div>
-            </div>
-        `).join('');
+                <div class="p-3">
+                    <div class="font-medium">${booking.name}</div>
+                    <div class="text-sm text-neutral-600">${booking.date}</div>
+                </div>
+            `).join('');
         }
 
         // Select all functionality
