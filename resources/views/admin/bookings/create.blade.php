@@ -39,19 +39,32 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <!-- Court Selection -->
                     <div>
                         <label for="court-id" class="block text-sm font-medium text-neutral-700 mb-1">Court</label>
                         <select name="court_id" id="court-id" class="w-full px-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 @error('court_id') border-red-500 @enderror">
                             <option value="">Select court</option>
                             @foreach($courts as $court)
-                            <option value="{{ $court->id }}" {{ old('court_id') == $court->id ? 'selected' : '' }} data-court='@json($court)'>{{ $court->name }} ({{ ucfirst($court->type) }})</option>
+                            <option value="{{ $court->id }}" {{ old('court_id') == $court->id ? 'selected' : '' }}
+                                data-court='{
+                                    "id": {{ $court->id }},
+                                    "name": "{{ $court->name }}",
+                                    "type": "{{ $court->type }}",
+                                    "rate_per_hour": {{ $court->rate_per_hour }},
+                                    "weekend_rate_per_hour": {{ $court->weekend_rate_per_hour }},
+                                    "opening_time": "{{ $court->opening_time }}",
+                                    "closing_time": "{{ $court->closing_time }}"
+                                }'>
+                                {{ $court->name }} ({{ ucfirst($court->type) }})
+                            </option>
                             @endforeach
                         </select>
                         @error('court_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <!-- Booking Date -->
                     <div>
                         <label for="booking-date" class="block text-sm font-medium text-neutral-700 mb-1">Booking Date</label>
@@ -61,6 +74,7 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <!-- Time Slots Selection -->
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -69,25 +83,6 @@
                                 <label for="start-time" class="block text-sm font-medium text-neutral-700 mb-1">Start Time</label>
                                 <select name="start_time" id="start-time" class="w-full px-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 @error('start_time') border-red-500 @enderror">
                                     <option value="">Select start time</option>
-                                    @php
-                                    $today = \Carbon\Carbon::now();
-                                    $isWeekend = $today->isWeekend();
-
-                                    if ($isWeekend) {
-                                    echo '<option value="06:00">6:00 AM</option>';
-                                    } else {
-                                    $start = \Carbon\Carbon::parse($courts->first()->opening_time);
-                                    $end = \Carbon\Carbon::parse($courts->first()->closing_time)->subHour();
-                                    $current = $start->copy();
-
-                                    while($current->lt($end)) {
-                                    echo '<option value="' . $current->format('H:i') . '">' .
-                                        $current->format('g:i A') .
-                                        '</option>';
-                                    $current->addHour();
-                                    }
-                                    }
-                                    @endphp
                                 </select>
                                 @error('start_time')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -99,36 +94,15 @@
                                 <label for="end-time" class="block text-sm font-medium text-neutral-700 mb-1">End Time</label>
                                 <select name="end_time" id="end-time" class="w-full px-4 py-2 rounded-lg border border-neutral-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 @error('end_time') border-red-500 @enderror">
                                     <option value="">Select end time</option>
-                                    @php
-                                    if ($isWeekend) {
-                                    echo '<option value="22:00">10:00 PM</option>';
-                                    } else {
-                                    $start = \Carbon\Carbon::parse($courts->first()->opening_time)->addHour();
-                                    $end = \Carbon\Carbon::parse($courts->first()->closing_time);
-                                    $current = $start->copy();
-
-                                    while($current->lte($end)) {
-                                    echo '<option value="' . $current->format('H:i') . '">' .
-                                        $current->format('g:i A') .
-                                        '</option>';
-                                    $current->addHour();
-                                    }
-                                    }
-                                    @endphp
                                 </select>
                                 @error('end_time')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
-                        <p class="text-sm text-neutral-500" id="time-slot-info">
-                            @if($isWeekend)
-                            Weekend bookings are for the whole day
-                            @else
-                            Select your preferred start and end times
-                            @endif
-                        </p>
+                        <p class="text-sm text-neutral-500" id="time-slot-info">Select a date and court to view available time slots</p>
                     </div>
+
                     <!-- Notes -->
                     <div class="md:col-span-2">
                         <label for="notes" class="block text-sm font-medium text-neutral-700 mb-1">Notes (optional)</label>
