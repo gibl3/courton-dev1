@@ -34,6 +34,28 @@ class Court extends Model
         'closing_time' => 'datetime'
     ];
 
+    // Accessors
+    public function getOpeningTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i') : null;
+    }
+
+    public function getClosingTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i') : null;
+    }
+
+    // Additional accessors for formatted times
+    public function getFormattedOpeningTimeAttribute()
+    {
+        return $this->opening_time ? Carbon::parse($this->opening_time)->format('g:i A') : null;
+    }
+
+    public function getFormattedClosingTimeAttribute()
+    {
+        return $this->closing_time ? Carbon::parse($this->closing_time)->format('g:i A') : null;
+    }
+
     // Relationships
     public function bookings()
     {
